@@ -50,12 +50,18 @@ void ACMT_PlayerController::SpawnPlayerCameraManager()
 	CMTPlayerCameraManager = Cast <ACMT_PlayerCameraManager>(PlayerCameraManager);
 }
 
+void ACMT_PlayerController::OnCameraModeChanged(const ECameraMode newCameraMode, const ECameraMode previousCameraMode)
+{
+	OnCameraModeChangedDelegate.Broadcast(newCameraMode, previousCameraMode);
+}
+
 void ACMT_PlayerController::ToggleCCTVTargetWithBlend(AActor* NewViewTarget, FRotator NewControlRotation,
                                                       float BlendTime, EViewTargetBlendFunction BlendFunc, float BlendExp, bool bLockOutgoing)
 {
 	if (CMTPlayerCameraManager.IsValid())
 	{
-		if (GetCameraMode() == CCTV && NewViewTarget == GetPawn())
+		const ECameraMode previousCameraMode = GetCameraMode();
+		if (previousCameraMode == CCTV && NewViewTarget == GetPawn())
 		{
 			// Go back to the previous Camera Mode
 			CMTPlayerCameraManager.Get()->SetCameraMode(CMTPlayerCameraManager.Get()->GetPreviousCameraMode());
@@ -67,6 +73,8 @@ void ACMT_PlayerController::ToggleCCTVTargetWithBlend(AActor* NewViewTarget, FRo
 			SetControlRotation(NewControlRotation);
 			SetViewTargetWithBlend(NewViewTarget, BlendTime, BlendFunc, BlendExp, bLockOutgoing);
 		}
+
+		OnCameraModeChanged(GetCameraMode(), previousCameraMode);
 	}
 }
 

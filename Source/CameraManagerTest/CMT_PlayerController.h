@@ -9,6 +9,8 @@
 class UCameraModifier;
 class UInputAction;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCameraModeChangedSignature, ECameraMode, newCameraMode, ECameraMode, oldCameraMode);
+
 /**
  * 
  */
@@ -22,8 +24,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SwitchCameraModeInputAction;
 
+	UPROPERTY(BlueprintAssignable, Category=PlayerController)
+	FOnCameraModeChangedSignature OnCameraModeChangedDelegate;
+	
 protected:
-	TWeakObjectPtr<ACMT_PlayerCameraManager> CMTPlayerCameraManager; 
+	TWeakObjectPtr<ACMT_PlayerCameraManager> CMTPlayerCameraManager;
 	
 public:
 	ACMT_PlayerController(const FObjectInitializer& ObjectInitializer);
@@ -35,6 +40,8 @@ public:
 	virtual void SetupInputComponent() override;
 
 	virtual void SpawnPlayerCameraManager() override;
+
+	void OnCameraModeChanged(const ECameraMode newCameraMode, const ECameraMode previousCameraMode);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void ToggleCCTVTargetWithBlend(AActor* NewViewTarget, FRotator NewControlRotation, float BlendTime, EViewTargetBlendFunction BlendFunc, float BlendExp, bool bLockOutgoing);
